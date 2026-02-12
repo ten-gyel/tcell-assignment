@@ -41,7 +41,7 @@ useEffect(() => {
 
 
   return (
-    <ProtectedRoute roles={["Admin"]}>
+    <ProtectedRoute roles={["Admin", "Manager", "Member"]}>
       <Layout title="Audit Logs">
         {loading ? <div>Loading audit logs...</div> : <AuditLogTable logs={logs} />}
       </Layout>

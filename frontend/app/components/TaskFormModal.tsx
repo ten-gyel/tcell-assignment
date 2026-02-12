@@ -9,12 +9,19 @@ export type TaskPayload = {
   status?: "Todo" | "Doing" | "Done";
 };
 
+type UserOption = {
+  id: number;
+  email: string;
+};
+
 export default function TaskFormModal({
   onClose,
   onSubmit,
+  users,
 }: {
   onClose: () => void;
   onSubmit: (payload: TaskPayload) => Promise<void>;
+  users: UserOption[];
 }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -50,12 +57,18 @@ export default function TaskFormModal({
           className="w-full border rounded-lg px-3 py-2"
           placeholder="Description"
         />
-        <input
+        <select
           value={assigneeId}
           onChange={(e) => setAssigneeId(e.target.value)}
           className="w-full border rounded-lg px-3 py-2"
-          placeholder="Assignee User ID (optional)"
-        />
+        >
+          <option value="">Unassigned</option>
+          {users.map((user) => (
+            <option key={user.id} value={user.id}>
+              {user.email}
+            </option>
+          ))}
+        </select>
         <div className="flex justify-end gap-2">
           <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg bg-slate-200">
             Cancel

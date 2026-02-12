@@ -1,6 +1,13 @@
 from datetime import datetime
+from enum import Enum
 
 from pydantic import BaseModel
+
+
+class TaskStatus(str, Enum):
+    todo = "Todo"
+    doing = "Doing"
+    done = "Done"
 
 
 class TaskBase(BaseModel):
@@ -10,13 +17,13 @@ class TaskBase(BaseModel):
 
 
 class TaskCreate(TaskBase):
-    status: str = "Todo"
+    status: TaskStatus = TaskStatus.todo
 
 
 class TaskUpdate(BaseModel):
     title: str | None = None
     description: str | None = None
-    status: str | None = None
+    status: TaskStatus | None = None
     assignee_id: int | None = None
 
 
@@ -24,7 +31,7 @@ class TaskOut(BaseModel):
     id: int
     title: str
     description: str | None
-    status: str
+    status: TaskStatus
     assignee_id: int | None
     created_by: int
     created_at: datetime
