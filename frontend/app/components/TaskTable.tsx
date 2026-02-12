@@ -17,12 +17,14 @@ const badgeMap: Record<Task["status"], string> = {
 export default function TaskTable({
   tasks,
   role,
+  assigneeLabels,
   onStatusChange,
   onDelete,
   onEdit,
 }: {
   tasks: Task[];
   role?: string;
+  assigneeLabels: Record<number, string>;
   onStatusChange: (taskId: number, status: Task["status"]) => void;
   onDelete: (taskId: number) => void;
   onEdit: (task: Task) => void;
@@ -51,7 +53,9 @@ export default function TaskTable({
                   {task.status}
                 </span>
               </td>
-              <td className="p-3">{task.assignee_id ?? "Unassigned"}</td>
+              <td className="p-3">
+                {task.assignee_id ? assigneeLabels[task.assignee_id] || "Unknown" : "Unassigned"}
+              </td>
               <td className="p-3 flex gap-2">
                 {role !== "Viewer" && (
                   <select
@@ -71,7 +75,7 @@ export default function TaskTable({
                   </button>
                 )}
 
-                {role === "Admin" && (
+                {canManageTasks && (
                   <button className="rounded bg-rose-600 px-2 py-1 text-white" onClick={() => onDelete(task.id)}>
                     Delete
                   </button>

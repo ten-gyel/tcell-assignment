@@ -12,6 +12,7 @@ export type TaskPayload = {
 type UserOption = {
   id: number;
   email: string;
+  displayName: string;
 };
 
 type TaskFormInitialValues = {
@@ -87,7 +88,7 @@ export default function TaskFormModal({
           <option value="">Unassigned</option>
           {users.map((user) => (
             <option key={user.id} value={user.id}>
-              {user.email}
+              {user.displayName}
             </option>
           ))}
         </select>

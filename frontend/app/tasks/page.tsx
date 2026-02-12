@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Layout from "../components/Layout";
 import ProtectedRoute from "../components/ProtectedRoute";
 import TaskFormModal, { TaskPayload } from "../components/TaskFormModal";
@@ -23,6 +23,8 @@ type UserOption = {
   role: "Admin" | "Manager" | "Member" | "Viewer";
 };
 
+const getDisplayName = (email: string): string => email.split("@")[0] || email;
+
 export default function TasksPage() {
   const { user } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -31,6 +33,20 @@ export default function TasksPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  const memberOptions = useMemo(
+    () => memberUsers.map((userOption) => ({ ...userOption, displayName: getDisplayName(userOption.email) })),
+    [memberUsers],
+  );
+
+  const assigneeLabels = useMemo(
+    () =>
+      memberOptions.reduce<Record<number, string>>((acc, userOption) => {
+        acc[userOption.id] = userOption.displayName;
+        return acc;
+      }, {}),
+    [memberOptions],
+  );
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -169,6 +185,7 @@ export default function TasksPage() {
           <TaskTable
             tasks={tasks}
             role={user?.role}
+            assigneeLabels={assigneeLabels}
             onStatusChange={updateStatus}
             onDelete={deleteTask}
             onEdit={(task) => setEditingTask(task)}
@@ -179,7 +196,7 @@ export default function TasksPage() {
           <TaskFormModal
             onClose={() => setShowCreateModal(false)}
             onSubmit={createTask}
-            users={memberUsers}
+            users={memberOptions}
             mode="create"
           />
         )}
@@ -188,7 +205,7 @@ export default function TasksPage() {
           <TaskFormModal
             onClose={() => setEditingTask(null)}
             onSubmit={editTask}
-            users={memberUsers}
+            users={memberOptions}
             mode="edit"
             initialValues={{
               title: editingTask.title,
