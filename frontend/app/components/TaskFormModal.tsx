@@ -63,45 +63,67 @@ export default function TaskFormModal({
     setSubmitting(false);
   };
 
+  const assigneeOptionLabel = (user: UserOption): string => {
+    if (mode === "edit") {
+      return `${user.displayName} (${user.email})`;
+    }
+    return user.displayName;
+  };
+
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
       <form className="w-full max-w-lg bg-white rounded-2xl p-6 shadow-xl space-y-4" onSubmit={submit}>
         <h3 className="text-xl font-semibold">{mode === "edit" ? "Edit Task" : "Create Task"}</h3>
-        <input
-          required
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full border rounded-lg px-3 py-2"
-          placeholder="Title"
-        />
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full border rounded-lg px-3 py-2"
-          placeholder="Description"
-        />
-        <select
-          value={assigneeId}
-          onChange={(e) => setAssigneeId(e.target.value)}
-          className="w-full border rounded-lg px-3 py-2"
-        >
-          <option value="">Unassigned</option>
-          {users.map((user) => (
-            <option key={user.id} value={user.id}>
-              {user.displayName}
-            </option>
-          ))}
-        </select>
 
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value as "Todo" | "Doing" | "Done")}
-          className="w-full border rounded-lg px-3 py-2"
-        >
-          <option value="Todo">Todo</option>
-          <option value="Doing">Doing</option>
-          <option value="Done">Done</option>
-        </select>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">Title</label>
+          <input
+            required
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full border rounded-lg px-3 py-2"
+            placeholder="Title"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">Description</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full border rounded-lg px-3 py-2"
+            placeholder="Description"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">Assignee</label>
+          <select
+            value={assigneeId}
+            onChange={(e) => setAssigneeId(e.target.value)}
+            className="w-full border rounded-lg px-3 py-2"
+          >
+            <option value="">Unassigned</option>
+            {users.map((user) => (
+              <option key={user.id} value={user.id}>
+                {assigneeOptionLabel(user)}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">Status</label>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value as "Todo" | "Doing" | "Done")}
+            className="w-full border rounded-lg px-3 py-2"
+          >
+            <option value="Todo">Todo</option>
+            <option value="Doing">Doing</option>
+            <option value="Done">Done</option>
+          </select>
+        </div>
 
         <div className="flex justify-end gap-2">
           <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg bg-slate-200">
