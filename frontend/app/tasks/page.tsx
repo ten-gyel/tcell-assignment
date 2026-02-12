@@ -24,16 +24,23 @@ export default function TasksPage() {
   const [showModal, setShowModal] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
-  const fetchTasks = async () => {
-    try {
-      const response = await api.get<Task[]>("/api/tasks");
-      setTasks(response.data);
-    } catch {
-      setToast({ message: "Failed to load tasks", type: "error" });
-    } finally {
-      setLoading(false);
-    }
-  };
+ const fetchTasks = async () => {
+  try {
+    const token = localStorage.getItem("token"); // get stored token
+    const response = await api.get<Task[]>("/api/tasks", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    setTasks(response.data);
+  } catch (err) {
+    console.error("Failed to fetch tasks:", err);
+    setToast({ message: "Failed to load tasks", type: "error" });
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchTasks();
@@ -41,24 +48,38 @@ export default function TasksPage() {
 
   const createTask = async (payload: TaskPayload) => {
     try {
-      await api.post("/api/tasks", payload);
+      const token = localStorage.getItem("token"); // get stored token
+      console.log("this is my token",token);
+      await api.post("/api/tasks", payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setShowModal(false);
       setToast({ message: "Task created", type: "success" });
-      fetchTasks();
-    } catch {
+      fetchTasks(); // refresh task list
+    } catch (err) {
+      console.error("Task creation failed:", err);
       setToast({ message: "Task creation failed", type: "error" });
     }
   };
 
-  const updateStatus = async (taskId: number, status: Task["status"]) => {
-    try {
-      await api.put(`/api/tasks/${taskId}`, { status });
-      setToast({ message: "Task updated", type: "success" });
-      fetchTasks();
-    } catch {
-      setToast({ message: "Status update failed", type: "error" });
-    }
-  };
+
+const updateStatus = async (taskId: number, status: Task["status"]) => {
+  try {
+    const token = localStorage.getItem("token"); // get token from localStorage
+    await api.put(`/api/tasks/${taskId}`, { status }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    setToast({ message: "Task updated", type: "success" });
+    fetchTasks(); // refresh tasks
+  } catch (err) {
+    console.error("Status update failed:", err);
+    setToast({ message: "Status update failed", type: "error" });
+  }
+};
 
   const deleteTask = async (taskId: number) => {
     if (!confirm("Delete this task?")) {

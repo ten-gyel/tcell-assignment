@@ -12,12 +12,26 @@ export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    api
-      .get<User[]>("/api/users")
-      .then((res) => setUsers(res.data))
-      .finally(() => setLoading(false));
-  }, []);
+useEffect(() => {
+  const fetchUsers = async () => {
+    try {
+      const token = localStorage.getItem("token"); // get stored token
+      const response = await api.get<User[]>("/api/users", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setUsers(response.data);
+    } catch (err) {
+      console.error("Failed to fetch users:", err);
+      // setToast({ message: "Failed to load users", type: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchUsers();
+}, []);
 
   return (
     <ProtectedRoute roles={["Admin"]}>
