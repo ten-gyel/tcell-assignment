@@ -28,6 +28,27 @@ Frontend expects backend API at `http://localhost:8000` by default. Override wit
 NEXT_PUBLIC_API_URL=http://your-api-host:8000
 ```
 
+## Docker setup (containerized deployment)
+
+Build and run both services with Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+After startup:
+
+- Frontend: `http://localhost:3000`
+- Backend API: `http://localhost:8000`
+
+To stop and remove containers:
+
+```bash
+docker compose down
+```
+
+The SQLite database file is mounted from `./app.db` into the backend container so data persists across restarts.
+
 ## Frontend routes
 
 - `/login`
