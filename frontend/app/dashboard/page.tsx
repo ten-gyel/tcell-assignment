@@ -17,11 +17,12 @@ export default function DashboardPage() {
             <p className="mt-1 text-slate-500">Role: {user?.role}</p>
           </div>
           <div className="rounded-2xl bg-white shadow-sm p-6">
-            <h3 className="text-lg font-semibold">Quick Tips</h3>
+            <h3 className="text-lg font-semibold">Role Permissions</h3>
             <ul className="mt-2 list-disc list-inside text-slate-600 space-y-1">
-              <li>Managers and Admins can create tasks.</li>
-              <li>Members can update status for assigned tasks.</li>
-              <li>Only Admin can delete tasks and view audit/users.</li>
+              <li>Admin: full task operations, can manage users, full audit visibility.</li>
+              <li>Manager: create/assign/update tasks, can view users, own audit actions only.</li>
+              <li>Member: can update only assigned tasks and can view own audit actions.</li>
+              <li>Viewer: read-only tasks with no user or audit access.</li>
             </ul>
           </div>
         </div>

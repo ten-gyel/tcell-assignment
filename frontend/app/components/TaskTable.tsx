@@ -8,6 +8,8 @@ type Task = {
   assignee_id?: number;
 };
 
+type Role = "Admin" | "Manager" | "Member" | "Viewer";
+
 const badgeMap: Record<Task["status"], string> = {
   Todo: "bg-slate-200 text-slate-800",
   Doing: "bg-amber-100 text-amber-800",
@@ -17,14 +19,28 @@ const badgeMap: Record<Task["status"], string> = {
 export default function TaskTable({
   tasks,
   role,
+  currentUserId,
   onStatusChange,
   onDelete,
 }: {
   tasks: Task[];
-  role?: string;
+  role?: Role;
+  currentUserId?: number;
   onStatusChange: (taskId: number, status: Task["status"]) => void;
   onDelete: (taskId: number) => void;
 }) {
+  const canUpdateTask = (task: Task) => {
+    if (role === "Admin" || role === "Manager") {
+      return true;
+    }
+
+    if (role === "Member") {
+      return task.assignee_id === currentUserId;
+    }
+
+    return false;
+  };
+
   return (
     <div className="overflow-x-auto rounded-2xl bg-white shadow-sm">
       <table className="min-w-full text-sm">
@@ -49,7 +65,7 @@ export default function TaskTable({
               </td>
               <td className="p-3">{task.assignee_id ?? "Unassigned"}</td>
               <td className="p-3 flex gap-2">
-                {role !== "Viewer" && (
+                {canUpdateTask(task) ? (
                   <select
                     className="border rounded px-2 py-1"
                     value={task.status}
@@ -59,6 +75,8 @@ export default function TaskTable({
                     <option value="Doing">Doing</option>
                     <option value="Done">Done</option>
                   </select>
+                ) : (
+                  <span className="text-xs text-slate-400">No update permission</span>
                 )}
                 {role === "Admin" && (
                   <button

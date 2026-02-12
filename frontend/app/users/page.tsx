@@ -34,7 +34,7 @@ useEffect(() => {
 }, []);
 
   return (
-    <ProtectedRoute roles={["Admin"]}>
+    <ProtectedRoute roles={["Admin", "Manager"]}>
       <Layout title="Users">
         {loading ? <div>Loading users...</div> : <UserTable users={users} />}
       </Layout>

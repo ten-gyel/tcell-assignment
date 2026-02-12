@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Layout from "../components/Layout";
 import ProtectedRoute from "../components/ProtectedRoute";
 import AuditLogTable from "../components/AuditLogTable";
+import { useAuth } from "../context/AuthContext";
 import api from "../lib/axios";
 
 type AuditLog = {
@@ -15,35 +16,42 @@ type AuditLog = {
 };
 
 export default function AuditPage() {
+  const { user } = useAuth();
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
 
-useEffect(() => {
-  const fetchLogs = async () => {
-    try {
-      const token = localStorage.getItem("token"); // get stored token
-      const response = await api.get<AuditLog[]>("/api/audit", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setLogs(response.data);
-    } catch (err) {
-      console.error("Failed to fetch audit logs:", err);
-      // setToast({ message: "Failed to load audit logs", type: "error" });
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await api.get<AuditLog[]>("/api/audit", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setLogs(response.data);
+      } catch (err) {
+        console.error("Failed to fetch audit logs:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLogs();
+  }, []);
+
+  const visibleLogs = useMemo(() => {
+    if (user?.role === "Admin") {
+      return logs;
     }
-  };
 
-  fetchLogs();
-}, []);
-
+    return logs.filter((log) => log.user_id === user?.id);
+  }, [logs, user?.id, user?.role]);
 
   return (
-    <ProtectedRoute roles={["Admin"]}>
+    <ProtectedRoute roles={["Admin", "Manager", "Member"]}>
       <Layout title="Audit Logs">
-        {loading ? <div>Loading audit logs...</div> : <AuditLogTable logs={logs} />}
+        {loading ? <div>Loading audit logs...</div> : <AuditLogTable logs={visibleLogs} />}
       </Layout>
     </ProtectedRoute>
   );

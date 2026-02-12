@@ -114,7 +114,13 @@ const updateStatus = async (taskId: number, status: Task["status"]) => {
         {loading ? (
           <div className="text-slate-600">Loading tasks...</div>
         ) : (
-          <TaskTable tasks={tasks} role={user?.role} onStatusChange={updateStatus} onDelete={deleteTask} />
+          <TaskTable
+            tasks={tasks}
+            role={user?.role}
+            currentUserId={user?.id}
+            onStatusChange={updateStatus}
+            onDelete={deleteTask}
+          />
         )}
 
         {showModal && <TaskFormModal onClose={() => setShowModal(false)} onSubmit={createTask} />}
