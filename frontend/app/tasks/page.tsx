@@ -50,12 +50,7 @@ export default function TasksPage() {
 
   const fetchTasks = useCallback(async () => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await api.get<Task[]>("/api/tasks", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await api.get<Task[]>("/api/tasks");
       setTasks(response.data);
     } catch (err) {
       console.error("Failed to fetch tasks:", err);
@@ -71,12 +66,7 @@ export default function TasksPage() {
     }
 
     try {
-      const token = localStorage.getItem("token");
-      const response = await api.get<UserOption[]>("/api/users", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await api.get<UserOption[]>("/api/users");
       setMemberUsers(response.data.filter((u) => u.role === "Member"));
     } catch {
       setMemberUsers([]);
@@ -93,12 +83,7 @@ export default function TasksPage() {
 
   const createTask = async (payload: TaskPayload) => {
     try {
-      const token = localStorage.getItem("token");
-      await api.post("/api/tasks", payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await api.post("/api/tasks", payload);
       setShowCreateModal(false);
       setToast({ message: "Task created", type: "success" });
       fetchTasks();
@@ -114,12 +99,7 @@ export default function TasksPage() {
     }
 
     try {
-      const token = localStorage.getItem("token");
-      await api.put(`/api/tasks/${editingTask.id}`, payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await api.put(`/api/tasks/${editingTask.id}`, payload);
       setEditingTask(null);
       setToast({ message: "Task updated", type: "success" });
       fetchTasks();
@@ -131,16 +111,7 @@ export default function TasksPage() {
 
   const updateStatus = async (taskId: number, status: Task["status"]) => {
     try {
-      const token = localStorage.getItem("token");
-      await api.put(
-        `/api/tasks/${taskId}`,
-        { status },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+      await api.put(`/api/tasks/${taskId}`, { status });
       setToast({ message: "Task updated", type: "success" });
       fetchTasks();
     } catch (err) {

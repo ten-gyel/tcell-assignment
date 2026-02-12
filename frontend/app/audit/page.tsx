@@ -18,27 +18,20 @@ export default function AuditPage() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
 
-useEffect(() => {
-  const fetchLogs = async () => {
-    try {
-      const token = localStorage.getItem("token"); // get stored token
-      const response = await api.get<AuditLog[]>("/api/audit", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setLogs(response.data);
-    } catch (err) {
-      console.error("Failed to fetch audit logs:", err);
-      // setToast({ message: "Failed to load audit logs", type: "error" });
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        const response = await api.get<AuditLog[]>("/api/audit");
+        setLogs(response.data);
+      } catch (err) {
+        console.error("Failed to fetch audit logs:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchLogs();
-}, []);
-
+    fetchLogs();
+  }, []);
 
   return (
     <ProtectedRoute roles={["Admin", "Manager", "Member"]}>

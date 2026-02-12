@@ -20,12 +20,7 @@ export default function UsersPage() {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await api.get<User[]>("/api/users", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await api.get<User[]>("/api/users");
       setUsers(response.data);
     } catch (err) {
       console.error("Failed to fetch users:", err);
@@ -42,16 +37,7 @@ export default function UsersPage() {
   const handleRoleChange = async (userId: number, role: Role) => {
     setSavingUserId(userId);
     try {
-      const token = localStorage.getItem("token");
-      await api.put(
-        `/api/users/${userId}/role`,
-        { role },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+      await api.put(`/api/users/${userId}/role`, { role });
       setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role } : u)));
       setToast({ message: "User role updated", type: "success" });
     } catch (err) {
