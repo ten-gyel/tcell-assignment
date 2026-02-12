@@ -21,7 +21,7 @@ export default function DashboardPage() {
             <ul className="mt-2 list-disc list-inside text-slate-600 space-y-1">
               <li>Managers and Admins can create tasks.</li>
               <li>Members can update status for assigned tasks.</li>
-              <li>Only Admin can delete tasks and view audit/users.</li>
+              <li>Admin can view all audit logs and users; Managers/Members can view their own audit logs.</li>
             </ul>
           </div>
         </div>

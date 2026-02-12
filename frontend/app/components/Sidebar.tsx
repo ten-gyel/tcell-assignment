@@ -17,7 +17,9 @@ export default function Sidebar() {
   const links = [
     ...baseLinks,
     ...(user?.role === "Admin" ? [{ href: "/users", label: "Users" }] : []),
-    ...(user?.role === "Admin" ? [{ href: "/audit", label: "Audit Logs" }] : []),
+    ...(user?.role === "Admin" || user?.role === "Manager" || user?.role === "Member"
+      ? [{ href: "/audit", label: "Audit Logs" }]
+      : []),
   ];
 
   return (

@@ -87,7 +87,7 @@ def edit_task(
 def remove_task(
     task_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_roles(Role.admin)),
+    current_user: User = Depends(require_roles(Role.admin, Role.manager)),
 ) -> dict[str, str]:
     task = db.query(Task).filter(Task.id == task_id).first()
     if not task:
