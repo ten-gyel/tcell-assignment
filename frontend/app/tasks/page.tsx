@@ -20,14 +20,16 @@ type Task = {
 type UserOption = {
   id: number;
   email: string;
+  role: "Admin" | "Manager" | "Member" | "Viewer";
 };
 
 export default function TasksPage() {
   const { user } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [users, setUsers] = useState<UserOption[]>([]);
+  const [memberUsers, setMemberUsers] = useState<UserOption[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   const fetchTasks = useCallback(async () => {
@@ -47,7 +49,7 @@ export default function TasksPage() {
     }
   }, []);
 
-  const fetchUsers = useCallback(async () => {
+  const fetchAssignableUsers = useCallback(async () => {
     if (user?.role !== "Admin" && user?.role !== "Manager") {
       return;
     }
@@ -59,9 +61,9 @@ export default function TasksPage() {
           Authorization: `Bearer ${token}`,
         },
       });
-      setUsers(response.data);
+      setMemberUsers(response.data.filter((u) => u.role === "Member"));
     } catch {
-      setUsers([]);
+      setMemberUsers([]);
     }
   }, [user?.role]);
 
@@ -70,8 +72,8 @@ export default function TasksPage() {
   }, [fetchTasks]);
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    fetchAssignableUsers();
+  }, [fetchAssignableUsers]);
 
   const createTask = async (payload: TaskPayload) => {
     try {
@@ -81,12 +83,33 @@ export default function TasksPage() {
           Authorization: `Bearer ${token}`,
         },
       });
-      setShowModal(false);
+      setShowCreateModal(false);
       setToast({ message: "Task created", type: "success" });
       fetchTasks();
     } catch (err) {
       console.error("Task creation failed:", err);
       setToast({ message: "Task creation failed", type: "error" });
+    }
+  };
+
+  const editTask = async (payload: TaskPayload) => {
+    if (!editingTask) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      await api.put(`/api/tasks/${editingTask.id}`, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setEditingTask(null);
+      setToast({ message: "Task updated", type: "success" });
+      fetchTasks();
+    } catch (err) {
+      console.error("Task update failed:", err);
+      setToast({ message: "Task update failed", type: "error" });
     }
   };
 
@@ -124,16 +147,16 @@ export default function TasksPage() {
     }
   };
 
-  const canCreate = user?.role === "Admin" || user?.role === "Manager";
+  const canCreateOrEdit = user?.role === "Admin" || user?.role === "Manager";
 
   return (
     <ProtectedRoute>
       <Layout title="Tasks">
         <div className="mb-4 flex justify-end">
-          {canCreate && (
+          {canCreateOrEdit && (
             <button
               className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-500"
-              onClick={() => setShowModal(true)}
+              onClick={() => setShowCreateModal(true)}
             >
               Create Task
             </button>
@@ -143,10 +166,39 @@ export default function TasksPage() {
         {loading ? (
           <div className="text-slate-600">Loading tasks...</div>
         ) : (
-          <TaskTable tasks={tasks} role={user?.role} onStatusChange={updateStatus} onDelete={deleteTask} />
+          <TaskTable
+            tasks={tasks}
+            role={user?.role}
+            onStatusChange={updateStatus}
+            onDelete={deleteTask}
+            onEdit={(task) => setEditingTask(task)}
+          />
         )}
 
-        {showModal && <TaskFormModal onClose={() => setShowModal(false)} onSubmit={createTask} users={users} />}
+        {showCreateModal && (
+          <TaskFormModal
+            onClose={() => setShowCreateModal(false)}
+            onSubmit={createTask}
+            users={memberUsers}
+            mode="create"
+          />
+        )}
+
+        {editingTask && (
+          <TaskFormModal
+            onClose={() => setEditingTask(null)}
+            onSubmit={editTask}
+            users={memberUsers}
+            mode="edit"
+            initialValues={{
+              title: editingTask.title,
+              description: editingTask.description,
+              assignee_id: editingTask.assignee_id,
+              status: editingTask.status,
+            }}
+          />
+        )}
+
         {toast && <Toast message={toast.message} type={toast.type} />}
       </Layout>
     </ProtectedRoute>

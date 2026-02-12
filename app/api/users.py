@@ -27,7 +27,7 @@ def list_users(
 def change_user_role(
     user_id: int,
     payload: UserRoleUpdate,
-    _: User = Depends(require_roles(Role.admin, Role.manager)),
+    _: User = Depends(require_roles(Role.admin)),
     db: Session = Depends(get_db),
 ) -> UserOut:
     return update_user_role(db, user_id, payload.role)

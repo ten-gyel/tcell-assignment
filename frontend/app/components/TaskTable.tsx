@@ -19,12 +19,16 @@ export default function TaskTable({
   role,
   onStatusChange,
   onDelete,
+  onEdit,
 }: {
   tasks: Task[];
   role?: string;
   onStatusChange: (taskId: number, status: Task["status"]) => void;
   onDelete: (taskId: number) => void;
+  onEdit: (task: Task) => void;
 }) {
+  const canManageTasks = role === "Admin" || role === "Manager";
+
   return (
     <div className="overflow-x-auto rounded-2xl bg-white shadow-sm">
       <table className="min-w-full text-sm">
@@ -60,11 +64,15 @@ export default function TaskTable({
                     <option value="Done">Done</option>
                   </select>
                 )}
+
+                {canManageTasks && (
+                  <button className="rounded bg-blue-600 px-2 py-1 text-white" onClick={() => onEdit(task)}>
+                    Edit
+                  </button>
+                )}
+
                 {role === "Admin" && (
-                  <button
-                    className="rounded bg-rose-600 px-2 py-1 text-white"
-                    onClick={() => onDelete(task.id)}
-                  >
+                  <button className="rounded bg-rose-600 px-2 py-1 text-white" onClick={() => onDelete(task.id)}>
                     Delete
                   </button>
                 )}
