@@ -31,9 +31,9 @@ From repository root:
 
 ```bash
 python -m venv .venv
-.venv/bin/activate
+.venv\Scripts\activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn app.main:app --reload
 ```
 
 Backend will run at:
@@ -121,9 +121,7 @@ docker compose down
 Use the backend API route:
 
 ```bash
-curl -X POST http://localhost:8000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"email":"admin@example.com","password":"admin123","role":"Admin"}'
+curl -X POST "http://127.0.0.1:8000/api/auth/register" -H "Content-Type: application/json" -d "{\"email\":\"admin@example.com\",\"password\":\"admin123\",\"role\":\"Admin\"}"
 ```
 
 ### Login
@@ -133,9 +131,7 @@ The UI login page is at:
 Or via API:
 
 ```bash
-curl -X POST http://localhost:8000/api/auth/login \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "username=admin@example.com&password=admin123"
+curl -X POST "http://127.0.0.1:8000/api/auth/login" -H "Content-Type: application/x-www-form-urlencoded" -d "username=admin@example.com&password=admin123"
 ```
 
 Use the returned JWT in `Authorization: Bearer <token>` for protected API calls.
